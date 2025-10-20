@@ -5,8 +5,12 @@
 
 // Get Supabase credentials from environment or use defaults
 // IMPORTANT: Replace these with your actual Supabase credentials
-const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // e.g., https://xxxxx.supabase.co
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://jatgjprtghxkvjqxcvjz.supabase.co '; // e.g., https://xxxxx.supabase.co
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphdGdqcHJ0Z2h4a3ZqcXhjdmp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NTgzMDQsImV4cCI6MjA3NjUzNDMwNH0.x87F9LLYcySgoD9NZTUWSFgiy8AU_5nxw0eb7mtSuys';
+
+// SUPABASE_URL=https://jatgjprtghxkvjqxcvjz.supabase.co 
+// SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphdGdqcHJ0Z2h4a3ZqcXhjdmp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5NTgzMDQsImV4cCI6MjA3NjUzNDMwNH0.x87F9LLYcySgoD9NZTUWSFgiy8AU_5nxw0eb7mtSuys 
+
 
 // Initialize Supabase client
 const { createClient } = supabase;
