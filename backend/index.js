@@ -280,7 +280,9 @@ app.post('/schedule/bulk', verifyAuth, async (req, res) => {
 
 // --- Serve Frontend Files ---
 // This part makes your backend server also act as a web server for your UI
-const __dirname = path.resolve(); // Get the absolute path of the project directory
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 // --- Start the Server ---
