@@ -1,0 +1,21 @@
+# YouTube Live Streamer - Cron Jobs
+# This file should be placed in /etc/cron.d/ on the Oracle Cloud VM
+#
+# Installation:
+# sudo cp ytstreamer.cron /etc/cron.d/ytstreamer
+# sudo chmod 644 /etc/cron.d/ytstreamer
+# sudo service cron restart
+
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# Morning stream - starts at 5:50 AM (10 minutes before 6 AM live time)
+# Runs every day at 5:50 AM
+50 5 * * * ubuntu /usr/bin/node /home/ubuntu/yt-streamer/backend/stream.js morning >> /home/ubuntu/yt-streamer/logs/morning.log 2>&1
+
+# Evening stream - starts at 4:50 PM (10 minutes before 5 PM live time)  
+# Runs every day at 4:50 PM (16:50 in 24-hour format)
+50 16 * * * ubuntu /usr/bin/node /home/ubuntu/yt-streamer/backend/stream.js evening >> /home/ubuntu/yt-streamer/logs/evening.log 2>&1
+
+# Optional: Clean up old logs every Sunday at midnight
+# 0 0 * * 0 ubuntu find /home/ubuntu/yt-streamer/logs -name "*.log" -mtime +30 -delete
