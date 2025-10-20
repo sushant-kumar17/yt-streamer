@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Live Streamer - Admin Dashboard</title>
+  <link rel="stylesheet" href="styles-new.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="auth-screen">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>🎥 YouTube Live Streamer</h1>
+        <p>Admin Dashboard</p>
+      </div>
+      <div class="auth-card">
+        <h2>Sign In</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" required placeholder="admin@example.com">
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" required placeholder="Enter your password">
+          </div>
+          <button type="submit" class="btn btn-primary" id="loginBtn">
+            Sign In
+          </button>
+        </form>
+        <div id="authMessage" class="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard (hidden initially) -->
+  <div id="mainDashboard" class="dashboard" style="display: none;">
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+      <div class="nav-content">
+        <div class="nav-brand">
+          <h1>🎥 YouTube Live Streamer</h1>
+        </div>
+        <div class="nav-actions">
+          <span class="user-email" id="userEmail"></span>
+          <button onclick="handleLogout()" class="btn btn-secondary">Logout</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- Quick Stats -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <h3 id="scheduledCount">0</h3>
+            <p>Scheduled</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔴</div>
+          <div class="stat-info">
+            <h3 id="streamingCount">0</h3>
+            <p>Streaming</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <h3 id="streamedCount">0</h3>
+            <p>Completed</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-info">
+            <h3 id="totalCount">0</h3>
+            <p>Total Streams</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Action Buttons -->
+      <section class="action-bar">
+        <button onclick="showScheduleModal()" class="btn btn-primary btn-large">
+          ➕ Schedule New Stream
+        </button>
+        <button onclick="showBulkScheduleModal()" class="btn btn-secondary btn-large">
+          📅 Schedule Week
+        </button>
+        <button onclick="loadSchedules()" class="btn btn-outline">
+          🔄 Refresh
+        </button>
+      </section>
+
+      <!-- Weekly Calendar View -->
+      <section class="card">
+        <div class="card-header">
+          <h2>📋 Schedule Calendar</h2>
+          <div class="view-controls">
+            <button onclick="changeWeek(-1)" class="btn btn-sm">◀ Previous</button>
+            <span id="weekDisplay">This Week</span>
+            <button onclick="changeWeek(1)" class="btn btn-sm">Next ▶</button>
+          </div>
+        </div>
+        <div id="calendarView" class="calendar-grid">
+          <!-- Calendar will be generated here -->
+        </div>
+      </section>
+
+      <!-- Detailed Schedule List -->
+      <section class="card">
+        <div class="card-header">
+          <h2>📜 All Schedules</h2>
+          <div class="filter-controls">
+            <select id="statusFilter" onchange="loadSchedules()">
+              <option value="all">All Statuses</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="streaming">Streaming</option>
+              <option value="streamed">Streamed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div id="schedulesList" class="schedules-list">
+          <p class="loading">Loading schedules...</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Schedule Modal -->
+  <div id="scheduleModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Schedule New Stream</h2>
+        <button onclick="closeScheduleModal()" class="modal-close">&times;</button>
+      </div>
+      <form id="scheduleForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="scheduleDate">Date *</label>
+            <input type="date" id="scheduleDate" required>
+          </div>
+          <div class="form-group">
+            <label for="scheduleSlot">Time Slot *</label>
+            <select id="scheduleSlot" required>
+              <option value="">Select time slot</option>
+              <option value="morning">🌅 Morning (6:00 AM)</option>
+              <option value="evening">🌆 Evening (5:00 PM)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="scheduleTitle">Stream Title *</label>
+          <input type="text" id="scheduleTitle" required placeholder="Daily Yoga Session - Relaxation & Meditation" maxlength="100">
+          <small>Max 100 characters</small>
+        </div>
+
+        <div class="form-group">
+          <label for="scheduleDescription">Description</label>
+          <textarea id="scheduleDescription" rows="4" placeholder="Join us for a peaceful yoga session..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="scheduleVideoUrl">Google Drive Video URL *</label>
+          <input type="url" id="scheduleVideoUrl" required placeholder="https://drive.google.com/uc?export=download&id=FILE_ID">
+          <small>Format: https://drive.google.com/uc?export=download&id=YOUR_FILE_ID</small>
+        </div>
+
+        <div class="form-group">
+          <label for="schedulePrivacy">Privacy Setting</label>
+          <select id="schedulePrivacy">
+            <option value="public">🌍 Public</option>
+            <option value="unlisted">🔗 Unlisted</option>
+            <option value="private">🔒 Private</option>
+          </select>
+          <small>Public: Anyone can find and watch | Unlisted: Only people with link | Private: Only you</small>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" onclick="closeScheduleModal()" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="scheduleSubmitBtn">Create Schedule</button>
+        </div>
+      </form>
+      <div id="scheduleMessage" class="message"></div>
+    </div>
+  </div>
+
+  <!-- Bulk Schedule Modal -->
+  <div id="bulkScheduleModal" class="modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2>Schedule Entire Week</h2>
+        <button onclick="closeBulkScheduleModal()" class="modal-close">&times;</button>
+      </div>
+      <div class="bulk-schedule-container">
+        <div class="bulk-instructions">
+          <p>📅 Schedule both morning and evening slots for the next 7 days</p>
+          <div class="bulk-defaults">
+            <input type="text" id="bulkTitle" placeholder="Default Title" value="Live Yoga Session">
+            <input type="text" id="bulkVideoUrl" placeholder="Default Video URL">
+            <select id="bulkPrivacy">
+              <option value="public">Public</option>
+              <option value="unlisted">Unlisted</option>
+              <option value="private">Private</option>
+            </select>
+            <button onclick="applyBulkDefaults()" class="btn btn-sm">Apply to All</button>
+          </div>
+        </div>
+        <div id="bulkScheduleList" class="bulk-schedule-list">
+          <!-- Generated dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeBulkScheduleModal()" class="btn btn-secondary">Cancel</button>
+          <button onclick="submitBulkSchedule()" class="btn btn-primary" id="bulkSubmitBtn">Create All Schedules</button>
+        </div>
+      </div>
+      <div id="bulkMessage" class="message"></div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Edit Schedule</h2>
+        <button onclick="closeEditModal()" class="modal-close">&times;</button>
+      </div>
+      <form id="editForm">
+        <input type="hidden" id="editId">
+        <div class="form-group">
+          <label for="editTitle">Stream Title *</label>
+          <input type="text" id="editTitle" required maxlength="100">
+        </div>
+        <div class="form-group">
+          <label for="editDescription">Description</label>
+          <textarea id="editDescription" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="editVideoUrl">Video URL *</label>
+          <input type="url" id="editVideoUrl" required>
+        </div>
+        <div class="form-group">
+          <label for="editPrivacy">Privacy</label>
+          <select id="editPrivacy">
+            <option value="public">Public</option>
+            <option value="unlisted">Unlisted</option>
+            <option value="private">Private</option>
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" onclick="closeEditModal()" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+      <div id="editMessage" class="message"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

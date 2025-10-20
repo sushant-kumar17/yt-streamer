@@ -1,5 +1,5 @@
--- YouTube Live Streamer - Supabase Migration
--- This migration creates the schedules table for storing video streaming schedules
+-- YouTube Live Streamer - Supabase Migration (Enhanced Version)
+-- This migration creates the schedules table with YouTube integration
 
 -- Create the schedules table
 CREATE TABLE IF NOT EXISTS schedules (
@@ -7,9 +7,26 @@ CREATE TABLE IF NOT EXISTS schedules (
   date DATE NOT NULL,
   slot VARCHAR(10) NOT NULL CHECK (slot IN ('morning', 'evening')),
   video_url TEXT NOT NULL,
-  status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'streaming', 'completed', 'failed')),
+  
+  -- YouTube details
+  title VARCHAR(100) NOT NULL DEFAULT 'Live Yoga Session',
+  description TEXT,
+  privacy VARCHAR(20) DEFAULT 'public' CHECK (privacy IN ('public', 'unlisted', 'private')),
+  youtube_broadcast_id VARCHAR(100),
+  youtube_stream_url TEXT,
+  youtube_watch_url TEXT,
+  
+  -- Status tracking
+  status VARCHAR(20) DEFAULT 'scheduled' CHECK (status IN ('scheduled', 'streaming', 'streamed', 'cancelled', 'failed')),
+  
+  -- Timestamps
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  started_at TIMESTAMP WITH TIME ZONE,
+  completed_at TIMESTAMP WITH TIME ZONE,
+  
+  -- Admin tracking
+  created_by VARCHAR(100),
   
   -- Ensure only one schedule per date and slot combination
   UNIQUE(date, slot)
