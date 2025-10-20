@@ -2,47 +2,54 @@ services:
   # Web Service (Backend + Frontend)
   - type: web
     name: yt-streamer
-    runtime: node
+    env: node
+    plan: free
     buildCommand: cd backend && npm install
     startCommand: cd backend && node index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 3000
+        value: 10000
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_KEY
         sync: false
       - key: YT_KEY
         sync: false
-    healthCheckPath: /
+      - key: YT_API_KEY
+        sync: false
+    healthCheckPath: /schedules
     
   # Cron Jobs (Background Workers)
-  - type: cron
-    name: morning-stream
-    runtime: node
-    buildCommand: cd backend && npm install
-    schedule: "50 5 * * *"
-    command: cd backend && node stream.js morning
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-      - key: YT_KEY
-        sync: false
-        
-  - type: cron
-    name: evening-stream
-    runtime: node
-    buildCommand: cd backend && npm install
-    schedule: "50 16 * * *"
-    command: cd backend && node stream.js evening
-    envVars:
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_KEY
-        sync: false
-      - key: YT_KEY
-        sync: false
+  # Note: Render Free tier doesn't support cron jobs
+  # You'll need to use an external cron service or upgrade to paid plan
+  # Uncomment these when you upgrade or use alternative solution
+  
+  # - type: cron
+  #   name: morning-stream
+  #   env: node
+  #   buildCommand: cd backend && npm install
+  #   schedule: "50 5 * * *"
+  #   command: cd backend && node stream.js morning
+  #   envVars:
+  #     - key: SUPABASE_URL
+  #       sync: false
+  #     - key: SUPABASE_KEY
+  #       sync: false
+  #     - key: YT_KEY
+  #       sync: false
+  #       
+  # - type: cron
+  #   name: evening-stream
+  #   env: node
+  #   buildCommand: cd backend && npm install
+  #   schedule: "50 16 * * *"
+  #   command: cd backend && node stream.js evening
+  #   envVars:
+  #     - key: SUPABASE_URL
+  #       sync: false
+  #     - key: SUPABASE_KEY
+  #       sync: false
+  #     - key: YT_KEY
+  #       sync: false
